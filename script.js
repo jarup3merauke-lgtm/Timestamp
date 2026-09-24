@@ -169,11 +169,43 @@
   });
 
   // ---------- map ----------
-  const map = L.map("map", { zoomControl: true }).setView([-8.4969, 140.3981], 13);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: "&copy; OpenStreetMap contributors",
-  }).addTo(map);
+  const mapContainer = document.getElementById("map");
+
+  function showMapError(message) {
+    mapContainer.innerHTML = `<div class="map-error">${message}<br>Kamu tetap bisa isi Lintang/Bujur secara manual di atas.</div>`;
+  }
+
+  if (typeof L === "undefined") {
+    // Leaflet library itself failed to load (e.g. file missing, blocked by browser extension).
+    showMapError("Peta tidak dapat dimuat (library Leaflet gagal dimuat).");
+    return;
+  }
+
+  let map;
+  try {
+    map = L.map("map", { zoomControl: true }).setView([-8.4969, 140.3981], 13);
+    const tileLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap contributors",
+    }).addTo(map);
+
+    let tileErrorCount = 0;
+    let tileLoadedOnce = false;
+    tileLayer.on("load", () => { tileLoadedOnce = true; });
+    tileLayer.on("tileerror", () => {
+      tileErrorCount++;
+      if (tileErrorCount > 6 && !tileLoadedOnce) {
+        const banner = document.createElement("div");
+        banner.className = "map-warning";
+        banner.textContent = "Gambar peta gagal dimuat. Periksa koneksi internet kamu — kamu tetap bisa isi koordinat manual.";
+        mapContainer.parentElement.insertBefore(banner, mapContainer.nextSibling);
+        tileLayer.off("tileerror");
+      }
+    });
+  } catch (err) {
+    showMapError("Peta gagal dimuat: " + err.message);
+    return;
+  }
 
   let marker = null;
 
