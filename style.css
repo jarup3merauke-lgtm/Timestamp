@@ -86,6 +86,14 @@ input[type="number"], input[type="text"], textarea {
 
 textarea { resize: vertical; font-family: inherit; }
 
+.geocode-status {
+  font-size: 0.76rem;
+  margin: 6px 0 0;
+  min-height: 1.1em;
+}
+.geocode-status.loading { color: var(--muted); }
+.geocode-status.error { color: #ffb45c; }
+
 .hint {
   font-size: 0.76rem;
   color: var(--muted);

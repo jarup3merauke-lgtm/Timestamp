@@ -242,13 +242,35 @@
     if (!Number.isNaN(lat) && !Number.isNaN(lon)) setMarker(lat, lon, false);
   }
 
-  async function reverseGeocode(lat, lon) {
+  let geocodeDebounceTimer = null;
+  let geocodeRequestId = 0;
+  const geocodeStatusEl = document.getElementById("geocodeStatus");
+
+  function setGeocodeStatus(text, cls) {
+    geocodeStatusEl.textContent = text;
+    geocodeStatusEl.className = `geocode-status${cls ? " " + cls : ""}`;
+  }
+
+  function reverseGeocode(lat, lon) {
+    // Debounce: klik/drag beruntun tidak boleh membombardir Nominatim
+    // (kebijakan mereka membatasi ke ~1 request/detik per IP; melebihi itu
+    // membuat request berikutnya gagal tanpa pesan, dan alamat lama "macet").
+    clearTimeout(geocodeDebounceTimer);
+    const myRequestId = ++geocodeRequestId;
+    setGeocodeStatus("Mencari alamat...", "loading");
+    geocodeDebounceTimer = setTimeout(() => {
+      fetchReverseGeocode(lat, lon, myRequestId, 0);
+    }, 500);
+  }
+
+  async function fetchReverseGeocode(lat, lon, myRequestId, attempt) {
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
         { headers: { "Accept-Language": "id" } }
       );
-      if (!res.ok) return;
+      if (myRequestId !== geocodeRequestId) return; // ada request lebih baru, buang hasil ini
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const a = data.address || {};
       const line1 = [a.road, a.village || a.suburb || a.neighbourhood].filter(Boolean).join(", ");
@@ -264,9 +286,17 @@
       if (lines.length) {
         el.address.value = lines.join("\n");
         redraw();
+        setGeocodeStatus("", "");
+      } else {
+        setGeocodeStatus("Alamat tidak ditemukan untuk titik ini. Isi manual ya.", "error");
       }
     } catch (err) {
-      // silent: reverse geocoding is a convenience only, user can type address manually
+      if (myRequestId !== geocodeRequestId) return;
+      if (attempt < 1) {
+        setTimeout(() => fetchReverseGeocode(lat, lon, myRequestId, attempt + 1), 800);
+        return;
+      }
+      setGeocodeStatus("Gagal memuat alamat otomatis (koneksi/limit Nominatim). Alamat di bawah belum sesuai titik ini — isi manual atau klik ulang.", "error");
     }
   }
 
