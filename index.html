@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timestamp Adder</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+  integrity="sha512-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14BWuTcWZxCXk4nQAbvbdz8lCaz5C0dOfSbCFcOxCf3ig=="
+  crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="app-header">
+  <h1>Timestamp Adder</h1>
+  <p>Tambahkan timestamp (tanggal, waktu, koordinat, alamat) ke pojok kanan-bawah foto. Murni overlay teks — foto tidak diubah/diedit sama sekali.</p>
+</header>
+
+<main class="layout">
+
+  <section class="panel">
+
+    <div class="field-group">
+      <h2>1. Foto</h2>
+      <label class="dropzone" id="dropzone" for="photoInput">
+        <span id="dropzoneText">Klik atau seret foto ke sini</span>
+        <input type="file" id="photoInput" accept="image/*" hidden>
+      </label>
+    </div>
+
+    <div class="field-group">
+      <h2>2. Tanggal &amp; Waktu</h2>
+      <div class="row">
+        <label class="sublabel">Tanggal (dd/mm/yyyy)</label>
+        <div class="dmy">
+          <input type="number" id="dd" min="1" max="31" placeholder="dd">
+          <span>/</span>
+          <input type="number" id="mm" min="1" max="12" placeholder="mm">
+          <span>/</span>
+          <input type="number" id="yyyy" min="1900" max="2100" placeholder="yyyy">
+        </div>
+      </div>
+      <div class="row">
+        <label class="sublabel">Waktu (hh.mm.ss)</label>
+        <div class="dmy">
+          <input type="number" id="hh" min="0" max="23" placeholder="hh">
+          <span>.</span>
+          <input type="number" id="mi" min="0" max="59" placeholder="mm">
+          <span>.</span>
+          <input type="number" id="ss" min="0" max="59" placeholder="ss">
+        </div>
+      </div>
+      <button type="button" id="btnNow" class="btn-secondary">Gunakan waktu sekarang</button>
+    </div>
+
+    <div class="field-group">
+      <h2>3. Koordinat</h2>
+      <div class="row">
+        <label class="sublabel">Lintang (Latitude)</label>
+        <input type="number" id="lat" step="0.000001" placeholder="-8.496131">
+      </div>
+      <div class="row">
+        <label class="sublabel">Bujur (Longitude)</label>
+        <input type="number" id="lon" step="0.000001" placeholder="140.398193">
+      </div>
+      <p class="hint">Nilai negatif lintang = LS (S), positif = LU (N). Nilai negatif bujur = BB (W), positif = BT (E).</p>
+      <button type="button" id="btnGeoloc" class="btn-secondary">Gunakan lokasi saya (GPS)</button>
+
+      <div class="row">
+        <label class="sublabel">Cari lokasi di peta</label>
+        <input type="text" id="mapSearch" placeholder="cth: Merauke, Papua Selatan">
+        <button type="button" id="btnSearch" class="btn-secondary">Cari</button>
+      </div>
+      <div id="map"></div>
+      <p class="hint">Klik peta atau geser pin untuk menentukan koordinat secara presisi.</p>
+    </div>
+
+    <div class="field-group">
+      <h2>4. Alamat Lengkap</h2>
+      <textarea id="address" rows="4" placeholder="Jl. Ermasu 1, Mandala&#10;Kecamatan Merauke&#10;Kabupaten Merauke&#10;Papua Selatan 99614"></textarea>
+      <p class="hint">Satu baris = satu baris teks pada timestamp. Terisi otomatis (bisa diedit) saat memilih titik di peta.</p>
+    </div>
+
+    <div class="field-group">
+      <h2>5. Ukuran Teks</h2>
+      <input type="range" id="scaleSlider" min="60" max="160" value="100">
+      <span id="scaleValue">100%</span>
+      <p class="hint">Ukuran font &amp; padding otomatis menyesuaikan resolusi foto; slider ini hanya faktor pengali.</p>
+    </div>
+
+    <button type="button" id="btnDownload" class="btn-primary" disabled>Unduh Foto dengan Timestamp</button>
+  </section>
+
+  <section class="preview">
+    <h2>Pratinjau</h2>
+    <div class="canvas-wrap">
+      <canvas id="canvas"></canvas>
+      <p id="canvasPlaceholder">Unggah foto untuk melihat pratinjau</p>
+    </div>
+  </section>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
+  integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="script.js"></script>
+</body>
+</html>
