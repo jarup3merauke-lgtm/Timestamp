@@ -133,18 +133,20 @@
     ctx.textAlign = "right";
     ctx.textBaseline = "alphabetic";
     ctx.font = `${fontSize}px Arial, sans-serif`;
-    ctx.lineWidth = Math.max(1, fontSize * 0.09);
-    ctx.strokeStyle = "rgba(0,0,0,0.85)";
     ctx.fillStyle = "#ffffff";
-    ctx.lineJoin = "round";
+    ctx.shadowColor = "rgba(0,0,0,0.4)";
+    ctx.shadowBlur = fontSize * 0.25;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
 
     const x = w - padding;
     let y = h - padding - (lines.length - 1) * lineHeight;
     for (const line of lines) {
-      ctx.strokeText(line, x, y);
       ctx.fillText(line, x, y);
       y += lineHeight;
     }
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
   }
 
   [el.dd, el.mm, el.yyyy, el.hh, el.mi, el.ss, el.lat, el.lon, el.address].forEach((input) => {
